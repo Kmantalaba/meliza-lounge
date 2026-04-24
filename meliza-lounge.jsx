@@ -57,6 +57,23 @@ export default function MelizaLounge() {
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [supabaseSetupMessage, setSupabaseSetupMessage] = useState('Checking Supabase connection...');
+  const [appointmentsTableExists, setAppointmentsTableExists] = useState(null);
+
+  const ADMIN_TEST_EMAIL = 'root';
+  const ADMIN_TEST_PASSWORD = 'admin';
+  const DEPLOY_ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'admin@meliza-lounge.test';
+  const APPOINTMENTS_TABLE_SQL = `CREATE TABLE appointments (
+    id serial PRIMARY KEY,
+    user_id text,
+    date date NOT NULL,
+    time text NOT NULL,
+    name text NOT NULL,
+    email text NOT NULL,
+    phone text NOT NULL,
+    status text NOT NULL DEFAULT 'confirmed',
+    created_at timestamp with time zone DEFAULT now()
+  );`;
 
   // Working hours constants
   const WORKING_HOURS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
@@ -131,14 +148,40 @@ export default function MelizaLounge() {
     if (!error && data) setAppointments(data);
   };
 
+  const checkSupabaseSetup = async () => {
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      setSupabaseSetupMessage('Missing Supabase environment variables. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
+      setAppointmentsTableExists(false);
+      return;
+    }
+
+    const { error } = await supabase.from('appointments').select('id').limit(1);
+    if (error) {
+      const message = error.message || String(error);
+      if (message.toLowerCase().includes('does not exist') || message.toLowerCase().includes('relation')) {
+        setSupabaseSetupMessage('Supabase is connected, but the appointments table is missing.');
+        setAppointmentsTableExists(false);
+      } else {
+        setSupabaseSetupMessage(`Supabase connection failed: ${message}`);
+        setAppointmentsTableExists(false);
+      }
+      return;
+    }
+
+    setSupabaseSetupMessage('Supabase is connected and the appointments table exists.');
+    setAppointmentsTableExists(true);
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         const name = session.user.user_metadata?.name || session.user.email.split('@')[0];
-        setCurrentUser({ id: session.user.id, email: session.user.email, name, role: session.user.user_metadata?.role || 'user' });
+        const isAdminUser = session.user.email === DEPLOY_ADMIN_EMAIL || session.user.user_metadata?.role === 'admin';
+        setCurrentUser({ id: session.user.id, email: session.user.email, name, role: isAdminUser ? 'admin' : 'user' });
         loadAppointments();
       }
     });
+    checkSupabaseSetup();
   }, []);
 
   const openBookingModal = () => {
@@ -154,16 +197,28 @@ export default function MelizaLounge() {
   // Handle login
   const handleLogin = async (e) => {
     e.preventDefault();
+    const normalizedEmail = loginEmail.trim().toLowerCase();
+
+    if (normalizedEmail === ADMIN_TEST_EMAIL && loginPassword === ADMIN_TEST_PASSWORD) {
+      setCurrentUser({ id: 'root', email: ADMIN_TEST_EMAIL, name: 'Root Admin', role: 'admin' });
+      setLoginEmail('');
+      setLoginPassword('');
+      setShowLoginModal(false);
+      await loadAppointments();
+      return;
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: loginEmail.trim().toLowerCase(),
+      email: normalizedEmail,
       password: loginPassword,
     });
     if (error) {
       alert('Invalid email or password. Please try again or create an account.');
       return;
     }
+    const isAdminUser = normalizedEmail === DEPLOY_ADMIN_EMAIL || data.user.user_metadata?.role === 'admin';
     const name = data.user.user_metadata?.name || data.user.email.split('@')[0];
-    setCurrentUser({ id: data.user.id, email: data.user.email, name, role: data.user.user_metadata?.role || 'user' });
+    setCurrentUser({ id: data.user.id, email: data.user.email, name, role: isAdminUser ? 'admin' : 'user' });
     setLoginEmail('');
     setLoginPassword('');
     setShowLoginModal(false);
@@ -379,6 +434,16 @@ export default function MelizaLounge() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
+        <div style={{ background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(218, 165, 32, 0.15)', borderRadius: '16px', padding: '18px', marginBottom: '24px' }}>
+          <p style={{ color: '#DAA520', fontSize: '14px', marginBottom: '6px', fontWeight: '700' }}>Supabase status</p>
+          <p style={{ color: '#ccc', fontSize: '14px', marginBottom: '10px' }}>{supabaseSetupMessage}</p>
+          {appointmentsTableExists === false && (
+            <div style={{ background: '#111', border: '1px solid rgba(218, 165, 32, 0.15)', borderRadius: '12px', padding: '14px', overflowX: 'auto' }}>
+              <p style={{ color: '#fff', fontSize: '13px', marginBottom: '8px' }}>Run this SQL in Supabase SQL editor to create the missing appointments table:</p>
+              <pre style={{ color: '#ccc', fontSize: '13px', whiteSpace: 'pre-wrap', margin: 0 }}>{APPOINTMENTS_TABLE_SQL}</pre>
+            </div>
+          )}
+        </div>
         {activeTab === 'home' && (
           <div>
             {/* Hero Section */}
@@ -640,6 +705,9 @@ export default function MelizaLounge() {
                   Cancel
                 </button>
               </div>
+              <p style={{ color: '#999', fontSize: '14px', textAlign: 'center', marginTop: '12px' }}>
+                Test admin login: <strong style={{ color: '#DAA520' }}>root/admin</strong>. Deployed admin email: <strong style={{ color: '#DAA520' }}>{DEPLOY_ADMIN_EMAIL}</strong>.
+              </p>
               <p style={{ color: '#999', fontSize: '14px', textAlign: 'center', marginTop: '16px' }}>
                 Don't have an account?{' '}
                 <button type="button" onClick={() => { setShowLoginModal(false); setShowRegisterModal(true); }} style={{ color: '#DAA520', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}>
