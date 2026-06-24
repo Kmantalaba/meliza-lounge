@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
-import { X, Loader2, Eye, EyeOff } from 'lucide-react';
+import { X, Loader2, Eye, EyeOff, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useApp } from '@/context/AppContext';
@@ -15,32 +15,17 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-const registerSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName:  z.string().min(1, 'Last name is required'),
-  email:     z.string().email('Enter a valid email address'),
-  password:  z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string().min(1, 'Please confirm your password'),
-}).refine((d) => d.password === d.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
-
-type LoginFields    = z.infer<typeof loginSchema>;
-type RegisterFields = z.infer<typeof registerSchema>;
+type LoginFields = z.infer<typeof loginSchema>;
 
 export default function AuthModal() {
-  const { showAuthModal, setShowAuthModal, authMode, setAuthMode, login, register } = useApp();
+  const { showAuthModal, setShowAuthModal, authMode, setAuthMode, login } = useApp();
   const [showPwd, setShowPwd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const loginForm = useForm<LoginFields>({ resolver: zodResolver(loginSchema) });
-  const registerForm = useForm<RegisterFields>({ resolver: zodResolver(registerSchema) });
 
-  // Reset forms on mode change
   useEffect(() => {
     loginForm.reset();
-    registerForm.reset();
     setShowPwd(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authMode]);
@@ -60,17 +45,6 @@ export default function AuthModal() {
       await login(data.email, data.password);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Login failed.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const onRegister = async (data: RegisterFields) => {
-    setIsLoading(true);
-    try {
-      await register(data.firstName, data.lastName, data.email, data.password);
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Registration failed.');
     } finally {
       setIsLoading(false);
     }
@@ -187,91 +161,26 @@ export default function AuthModal() {
               </button>
             </form>
           ) : (
-            <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <input
-                    {...registerForm.register('firstName')}
-                    placeholder="First name *"
-                    className={`w-full px-4 py-3 rounded-xl border text-sm placeholder:text-[#C4B5BA] text-[#1a1a2e] outline-none transition-all focus:border-[#E91E8C] focus:ring-2 focus:ring-[#E91E8C]/10 ${
-                      registerForm.formState.errors.firstName ? 'border-red-300 bg-red-50' : 'border-pink-100 bg-[#FFF9FC]'
-                    }`}
-                  />
-                  {registerForm.formState.errors.firstName && (
-                    <p className="text-red-400 text-xs mt-1">{registerForm.formState.errors.firstName.message}</p>
-                  )}
-                </div>
-                <div>
-                  <input
-                    {...registerForm.register('lastName')}
-                    placeholder="Last name *"
-                    className={`w-full px-4 py-3 rounded-xl border text-sm placeholder:text-[#C4B5BA] text-[#1a1a2e] outline-none transition-all focus:border-[#E91E8C] focus:ring-2 focus:ring-[#E91E8C]/10 ${
-                      registerForm.formState.errors.lastName ? 'border-red-300 bg-red-50' : 'border-pink-100 bg-[#FFF9FC]'
-                    }`}
-                  />
-                  {registerForm.formState.errors.lastName && (
-                    <p className="text-red-400 text-xs mt-1">{registerForm.formState.errors.lastName.message}</p>
-                  )}
-                </div>
+            /* Registration coming soon */
+            <div className="flex flex-col items-center justify-center py-6 text-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-[#FFF0F7] flex items-center justify-center">
+                <Clock size={28} className="text-[#E91E8C]" />
               </div>
-
               <div>
-                <input
-                  {...registerForm.register('email')}
-                  type="email"
-                  placeholder="Email address *"
-                  className={`w-full px-4 py-3 rounded-xl border text-sm placeholder:text-[#C4B5BA] text-[#1a1a2e] outline-none transition-all focus:border-[#E91E8C] focus:ring-2 focus:ring-[#E91E8C]/10 ${
-                    registerForm.formState.errors.email ? 'border-red-300 bg-red-50' : 'border-pink-100 bg-[#FFF9FC]'
-                  }`}
-                />
-                {registerForm.formState.errors.email && (
-                  <p className="text-red-400 text-xs mt-1">{registerForm.formState.errors.email.message}</p>
-                )}
+                <p className="text-[#1a1a2e] font-bold text-lg" style={{ fontFamily: 'var(--font-playfair)' }}>
+                  Coming Soon
+                </p>
+                <p className="text-[#9CA3AF] text-sm mt-1 leading-relaxed">
+                  Client registration will be available soon. Stay tuned!
+                </p>
               </div>
-
-              <div className="relative">
-                <input
-                  {...registerForm.register('password')}
-                  type={showPwd ? 'text' : 'password'}
-                  placeholder="Password (min. 6 chars) *"
-                  className={`w-full px-4 py-3 pr-11 rounded-xl border text-sm placeholder:text-[#C4B5BA] text-[#1a1a2e] outline-none transition-all focus:border-[#E91E8C] focus:ring-2 focus:ring-[#E91E8C]/10 ${
-                    registerForm.formState.errors.password ? 'border-red-300 bg-red-50' : 'border-pink-100 bg-[#FFF9FC]'
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPwd(!showPwd)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#525252]"
-                >
-                  {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-                {registerForm.formState.errors.password && (
-                  <p className="text-red-400 text-xs mt-1">{registerForm.formState.errors.password.message}</p>
-                )}
-              </div>
-
-              <div>
-                <input
-                  {...registerForm.register('confirmPassword')}
-                  type={showPwd ? 'text' : 'password'}
-                  placeholder="Confirm password *"
-                  className={`w-full px-4 py-3 rounded-xl border text-sm placeholder:text-[#C4B5BA] text-[#1a1a2e] outline-none transition-all focus:border-[#E91E8C] focus:ring-2 focus:ring-[#E91E8C]/10 ${
-                    registerForm.formState.errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-pink-100 bg-[#FFF9FC]'
-                  }`}
-                />
-                {registerForm.formState.errors.confirmPassword && (
-                  <p className="text-red-400 text-xs mt-1">{registerForm.formState.errors.confirmPassword.message}</p>
-                )}
-              </div>
-
               <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-[#E91E8C] hover:bg-[#C2177A] disabled:bg-pink-200 text-white font-semibold py-3 rounded-xl text-sm transition-all duration-200 shadow-md shadow-pink-200 flex items-center justify-center gap-2 mt-2"
+                onClick={() => setAuthMode('login')}
+                className="text-sm font-semibold text-[#E91E8C] hover:underline"
               >
-                {isLoading ? <><Loader2 size={16} className="animate-spin" /> Creating…</> : 'Create Account'}
+                Back to Login
               </button>
-            </form>
+            </div>
           )}
         </div>
       </div>
