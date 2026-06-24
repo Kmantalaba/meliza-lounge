@@ -1,0 +1,233 @@
+@import "tailwindcss";
+@import "react-day-picker/style.css";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Playfair Display', 'Georgia', serif;
+  --font-script: 'Dancing Script', cursive;
+
+  --color-brand: #E91E8C;
+  --color-brand-dark: #C2177A;
+  --color-brand-light: #FFF0F7;
+  --color-brand-muted: #FDE8F3;
+  --color-rose-50: #fff1f5;
+  --color-rose-100: #ffe4ed;
+  --color-rose-200: #fecdd8;
+  --color-rose-300: #fda4ba;
+  --color-rose-400: #fb6f9a;
+  --color-rose-500: #f43f7a;
+  --color-rose-600: #e11d5a;
+  --color-rose-700: #be123f;
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #171717;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.02em;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f5f5f5;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #E91E8C;
+    border-radius: 10px;
+  }
+}
+
+/* ── React Day Picker overrides ─────────────────────────────────────── */
+.rdp-root {
+  --rdp-accent-color: #E91E8C;
+  --rdp-accent-background-color: #FFF0F7;
+  --rdp-day-font: var(--font-sans);
+  font-family: var(--font-sans);
+}
+
+.rdp-day_button:hover:not([disabled]) {
+  background-color: #FFF0F7;
+}
+
+.rdp-selected .rdp-day_button {
+  background-color: #E91E8C !important;
+  color: #fff !important;
+}
+
+/* ── Section spacing helper ─────────────────────────────────────────── */
+.section-padding {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-top: 7rem;
+    padding-bottom: 7rem;
+  }
+}
+
+/* ── Glass card ─────────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(233, 30, 140, 0.12);
+}
+
+/* ── Gradient text ──────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #E91E8C 0%, #FF6BB3 50%, #C2177A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Pink gradient bg ───────────────────────────────────────────────── */
+.bg-pink-gradient {
+  background: linear-gradient(135deg, #FFF0F7 0%, #FFE4F0 40%, #FFF5F9 100%);
+}
+
+/* ── Keyframe Animations ─────────────────────────────────────────────── */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.82) rotate(-4deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+@keyframes floatBadge {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-9px) rotate(1deg); }
+}
+
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0 rgba(233,30,140,0.35); }
+  70%  { box-shadow: 0 0 0 14px rgba(233,30,140,0); }
+  100% { box-shadow: 0 0 0 0 rgba(233,30,140,0); }
+}
+
+@keyframes shimmerPill {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes heroCirclePulse {
+  0%, 100% { opacity: 0.20; transform: scale(1); }
+  50%       { opacity: 0.30; transform: scale(1.06); }
+}
+
+/* ── CSS animation classes ────────────────────────────────────────────── */
+
+.anim-fade-up    { animation: fadeInUp   0.72s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.anim-fade-left  { animation: fadeInLeft 0.72s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.anim-fade-right { animation: fadeInRight 0.72s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.anim-scale-in   { animation: scaleIn    0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.anim-float      { animation: float      4s   ease-in-out infinite; }
+.anim-float-badge { animation: floatBadge 5s  ease-in-out infinite; }
+.anim-pulse-ring  { animation: pulseRing  2.4s ease-out infinite; }
+
+.delay-0   { animation-delay: 0ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-250 { animation-delay: 250ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-350 { animation-delay: 350ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-450 { animation-delay: 450ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-550 { animation-delay: 550ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-800 { animation-delay: 800ms; }
+.delay-900 { animation-delay: 900ms; }
+
+/* ── Scroll-reveal states ─────────────────────────────────────────────── */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-left.in-view {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal-right.in-view {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reveal-scale.in-view {
+  opacity: 1;
+  transform: scale(1);
+}
