@@ -1,4 +1,3 @@
-// Upgraded to Tailwind CSS v4 — config is now CSS-first (see app/globals.css)
 const config = {
   plugins: {
     '@tailwindcss/postcss': {},
