@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import type { Metadata, Viewport } from 'next';
 import { Inter, Playfair_Display, Dancing_Script } from 'next/font/google';
 import { Toaster } from 'sonner';
