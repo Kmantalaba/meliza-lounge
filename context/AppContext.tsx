@@ -53,16 +53,13 @@ interface AppContextType {
   showAuthModal: boolean;
   showBookingModal: boolean;
   authMode: AuthMode;
-  activeSection: string;
   setShowAuthModal: (show: boolean) => void;
   setShowBookingModal: (show: boolean) => void;
   setAuthMode: (mode: AuthMode) => void;
-  setActiveSection: (section: string) => void;
   openBookingModal: () => void;
   getAvailableSlots: (dateString: string) => string[];
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (firstName: string, lastName: string, email: string, password: string) => Promise<void>;
   bookAppointment: (data: BookingFormData) => Promise<void>;
   cancelAppointment: (id: number) => Promise<void>;
   supabaseStatus: { connected: boolean; message: string };
@@ -85,7 +82,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const [activeSection, setActiveSection] = useState('home');
   const [supabaseStatus, setSupabaseStatus] = useState({
     connected: false,
     message: 'Checking connection…',
@@ -223,45 +219,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setAppointments([]);
     toast.success('Logged out successfully.');
-  }, [user]);
-
-  const register = useCallback(async (
-    firstName: string,
-    lastName: string,
-    email: string,
-    password: string,
-  ) => {
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim().toLowerCase(),
-      password,
-      options: {
-        data: {
-          first_name: firstName.trim(),
-          last_name:  lastName.trim(),
-          name: `${firstName.trim()} ${lastName.trim()}`,
-        },
-      },
-    });
-    if (error) {
-      if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already been registered') || error.message.toLowerCase().includes('user already exists')) {
-        throw new Error('An account with this email already exists. Please log in instead.');
-      }
-      throw new Error(error.message);
-    }
-
-    // Profile row will be auto-created by the DB trigger.
-    // Optimistically set user state now.
-    const uid = data.user?.id ?? 'temp';
-    setUser({
-      id: uid,
-      email: data.user!.email!,
-      firstName: firstName.trim(),
-      lastName:  lastName.trim(),
-      name: `${firstName.trim()} ${lastName.trim()}`,
-      role: 'user',
-    });
-    setShowAuthModal(false);
-    toast.success(`Welcome to The Meliza Lounge, ${firstName.trim()}!`);
   }, []);
 
   const bookAppointment = useCallback(async (formData: BookingFormData) => {
@@ -392,10 +349,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const value: AppContextType = {
     user, isAdmin, isLoading, appointments, userAppointments,
-    showAuthModal, showBookingModal, authMode, activeSection,
-    setShowAuthModal, setShowBookingModal, setAuthMode, setActiveSection,
+    showAuthModal, showBookingModal, authMode,
+    setShowAuthModal, setShowBookingModal, setAuthMode,
     openBookingModal, getAvailableSlots,
-    login, logout, register, bookAppointment, cancelAppointment,
+    login, logout, bookAppointment, cancelAppointment,
     supabaseStatus,
     galleryImages, addGalleryImage, removeGalleryImage,
     reviews, userReview, showReviewModal, setShowReviewModal, submitReview,

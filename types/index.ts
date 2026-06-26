@@ -21,26 +21,6 @@ export interface UserProfile {
   role: 'admin' | 'user';
 }
 
-export interface Service {
-  id: number;
-  title: string;
-  description: string;
-  price: number;
-  duration: string;
-  category: 'manicure' | 'pedicure' | 'nail-art' | 'extension';
-  gradient: string;
-  popular?: boolean;
-}
-
-export interface Testimonial {
-  id: number;
-  name: string;
-  role: string;
-  content: string;
-  rating: number;
-  avatar: string;
-}
-
 export interface BookingFormData {
   name: string;
   email: string;
@@ -49,13 +29,6 @@ export interface BookingFormData {
   date: string;
   time: string;
   notes?: string;
-}
-
-export interface AuthFormData {
-  email: string;
-  password: string;
-  name?: string;
-  confirmPassword?: string;
 }
 
 export type AuthMode = 'login' | 'register';
